@@ -35,8 +35,8 @@ function Board({ nrows=3, ncols=3, chanceLightStartsOn=0.33 }) {
   function createBoard() {
     let initialBoard = [];
     // TODO: create array-of-arrays of true/false values
-    for (let y = 0; y < ncols.length; ++y) {
-      for (let x = 0; x < nrows.length; ++x) {
+    for (let y = 0; y < nrows.length; y++) {
+      for (let x = 0; x < ncols.length; x++) {
         const chance = Math.random();
         if (chance < chanceLightStartsOn) {
           initialBoard[y][x] = true;
@@ -51,11 +51,14 @@ function Board({ nrows=3, ncols=3, chanceLightStartsOn=0.33 }) {
 
   function hasWon() {
     // TODO: check the board in state to determine whether the player has won.
-    if (initialBoard.every(row => row.every(cell => cell === true))) {
-      return "You won!";
-    } else {
-      return "Nothing yet.";
-    }
+    return board.every(row => row.every(cell => cell === false));
+
+    // old code for ref:
+    // if (initialBoard.every(row => row.every(cell => cell === false))) {
+    //   return "You won!";
+    // } else {
+    //   return "Nothing yet.";
+    // }
   }
 
   function flipCellsAround(coord) {
@@ -72,21 +75,54 @@ function Board({ nrows=3, ncols=3, chanceLightStartsOn=0.33 }) {
 
       // TODO: Make a (deep) copy of the oldBoard
 
-      const oldBoardCopy = _.cloneDeep(oldBoard);
+      // Using lodash:
+      // const oldBoardCopy = _.cloneDeep(oldBoard);
+
+      // Alternatively w/out using additional libraries:
+      const boardCopy = oldBoard.map(row => [...row]);
 
       // TODO: in the copy, flip this cell and the cells around it
 
+      flipCell(y, x, boardCopy);
+      flipCell(y, x - 1, boardCopy);
+      flipCell(y, x + 1, boardCopy);
+      flipCell(y - 1, x, boardCopy);
+      flipCell(y + 1, x, boardCopy);
+
       // TODO: return the copy
+      return boardCopy;
     });
   }
 
   // if the game is won, just show a winning msg & render nothing else
+  if (hasWon()) {
+    return <div>You win!</div>
+  }
 
-  // TODO
+  // TODO: make table board: rows of Cell components (the actual render)
 
-  // make table board
+  const tblBoard = [];
 
-  // TODO
+  for (let y = 0; y < nrows; y++) {
+    const row = [];
+    for (let x = 0; x < ncols; x++) {
+      const coord = `${y}-${x}`;
+      row.push(
+        <Cell
+            key={coord}
+            isLit={board[y][x]}
+            flipCellsAroundMe={evt => flipCellsAround(coord)}
+        />
+      );
+    }
+    tblBoard.push(<tr key={y}>{row}</tr>)
+  }
+
+  return (
+    <table className="Board">
+      <tbody>{tblBoard}</tbody>
+    </table>
+  );
 }
 
 export default Board;
