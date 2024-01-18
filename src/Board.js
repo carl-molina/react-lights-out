@@ -28,25 +28,39 @@ import _ from "lodash";
  *
  **/
 
-function Board({ nrows=3, ncols=3, chanceLightStartsOn=0.33 }) {
+function Board({ nrows=3, ncols=3, chanceLightStartsOn=0.25 }) {
   const [board, setBoard] = useState(createBoard());
+
+  console.log("Board rendered");
+  console.log('new board:', board);
 
   /** create a board nrows high/ncols wide, each cell randomly lit or unlit */
   function createBoard() {
-    let initialBoard = [];
     // TODO: create array-of-arrays of true/false values
-    for (let y = 0; y < nrows.length; y++) {
-      for (let x = 0; x < ncols.length; x++) {
-        const chance = Math.random();
-        if (chance < chanceLightStartsOn) {
-          initialBoard[y][x] = true;
-        } else {
-          initialBoard[y][x] = false;
-        }
-      }
-    }
+    return Array.from({length: nrows}).map(
+      row => Array.from({length: ncols}).map(
+          cell => Math.random() < chanceLightStartsOn
+      )
+  );
 
-    return initialBoard;
+
+
+    // old code for ref:
+    // let initialBoard = [];
+    // for (let y = 0; y < nrows.length; y++) {
+    //   const row = [];
+    //   for (let x = 0; x < ncols.length; x++) {
+    //     row.push(null);
+    //     const chance = Math.random();
+    //     if (chance < chanceLightStartsOn) {
+    //       initialBoard[y][x] = true;
+    //     } else {
+    //       initialBoard[y][x] = false;
+    //     }
+    //   }
+    //   initialBoard.push(row);
+    // }
+    // return initialBoard;
   }
 
   function hasWon() {
@@ -112,6 +126,7 @@ function Board({ nrows=3, ncols=3, chanceLightStartsOn=0.33 }) {
             key={coord}
             isLit={board[y][x]}
             flipCellsAroundMe={evt => flipCellsAround(coord)}
+            // this is passing a callback fn to ^ Cell component as a prop
         />
       );
     }
